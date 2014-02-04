@@ -1,9 +1,12 @@
+#!/usr/bin/env node
+
 var sys = require('sys')
 var exec = require('child_process').exec
 
 var express = require('express')
 var app = express()
 
+// Routes
 app.get('/', function(req, res) {
 	res.send('Hello, world!')
 })
@@ -15,5 +18,8 @@ app.get('/led', function(req, res) {
 	res.send('LED stuff')
 })
 
-app.listen(4000)
-console.log('Listening on port 4000')
+// Init
+var port = 4000
+
+app.listen(port)
+console.log('Started server. Listening on port ' + port + '...')
