@@ -18,10 +18,20 @@ app.get('/', function(request, response) {
 
 // Server verifies OTA is legitimate and sends OTA key of sensor Node
 // to device
+app.get('/key/:nodeId', function(request, response) {
+	nodeList = {
+		"111": "1234",
+		"007": "9999"
+	}
+
+	nodeKey = nodeList[request.params.nodeId]
+
+	response.send(nodeKey ? nodeKey : 'ERROR: Node not found')
+})
 
 // Sensor node sends details of device + 2FA code request
 
-// Mobile device sends detauls of OTA and 2FA code request to server
+// Mobile device sends details of OTA and 2FA code request to server
 
 // Server verifies legitimate OTA and sends 2FA code to sensor
 
