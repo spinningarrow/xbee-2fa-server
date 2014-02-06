@@ -30,8 +30,17 @@ app.get('/key/:nodeId', function(request, response) {
 })
 
 // Sensor node sends details of device + 2FA code request
+// NOTE
+// this is not correct; Java code will ping the server when it receives
+// a request from the attached XBee!
+// WE HAVE A PROBLEM
+app.post('/mobile2fa', function (request, response) {
+	var deviceId = request.params.deviceId
+	var authId = request.params.authId // 2FA request ID
+})
 
 // Mobile device sends details of OTA and 2FA code request to server
+// app.post('sensor2fa')
 
 // Server verifies legitimate OTA and sends 2FA code to sensor
 
@@ -39,7 +48,7 @@ app.get('/key/:nodeId', function(request, response) {
 // via email or SMS
 
 // Test route (test LED on/off broadcast)
-app.get('/led/:action', function(request, response) {
+app.get('/led/:action', function (request, response) {
 
 	// Get the desired action string and capitalise it
 	var ledAction = request.params.action.toLowerCase()
@@ -52,6 +61,12 @@ app.get('/led/:action', function(request, response) {
 	})
 
 	response.send('LED turned ' + ledAction)
+})
+
+/// TESTSETSETSETS
+app.post('/echopackets', express.bodyParser(), function (request, response) {
+	sys.print(request.body ? request.body.rx : 'No data received')
+	response.send('Nothing to display.')
 })
 
 // Init
