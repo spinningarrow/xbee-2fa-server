@@ -1,11 +1,24 @@
-module.exports = function (app) {
-	// var passport = require('passport');
+var passport = require('passport');
 
+// Simple route middleware to ensure user is authenticated.
+//   Use this route middleware on any resource that needs to be protected.  If
+//   the request is authenticated (typically via a persistent login session),
+//   the request will proceed.  Otherwise, the user will be redirected to the
+//   login page.
+function ensureAuthenticated(req, res, next) {
+	if (req.isAuthenticated()) {
+		return next();
+	}
+	res.redirect('/login');
+	// res.send('You need to login');
+}
+
+module.exports = function (app) {
 	app.get('/', function(req, res){
 		res.render('index', { user: req.user });
 	});
 
-	app.get('/account',/* ensureAuthenticated,*/ function(req, res){
+	app.get('/account', ensureAuthenticated, function(req, res){
 		res.render('account', { user: req.user });
 	});
 

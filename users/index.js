@@ -1,6 +1,7 @@
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+
 module.exports = function (app, User) {
-	// var passport = require('passport');
-	// var LocalStrategy = require('passport-local').Strategy;
 	// // Initialize Passport! Also use passport.session() middleware, to support
 	// // persistent login sessions (recommended).
 	// app.use(passport.initialize());
@@ -40,19 +41,4 @@ module.exports = function (app, User) {
 			});
 		});
 	}));
-
-
-
-	// Simple route middleware to ensure user is authenticated.
-	//   Use this route middleware on any resource that needs to be protected.  If
-	//   the request is authenticated (typically via a persistent login session),
-	//   the request will proceed.  Otherwise, the user will be redirected to the
-	//   login page.
-	function ensureAuthenticated(req, res, next) {
-		if (req.isAuthenticated()) {
-			return next();
-		}
-		// res.redirect('/login')
-		res.send('You need to login');
-	}
 };

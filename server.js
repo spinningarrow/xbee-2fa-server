@@ -1,8 +1,7 @@
 var fs = require('fs');
 var https = require('https');
 var express = require('express');
-passport = require('passport');
-LocalStrategy = require('passport-local').Strategy;
+var passport = require('passport');
 var mongoose = require('mongoose');
 
 var HTTPS_PORT = 8000;
