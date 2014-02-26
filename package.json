@@ -1,7 +1,7 @@
 {
-	"name": "server-2fa",
-	"description": "2FA server for FYP",
-	"version": "0.0.1",
+	"name": "xbee-2fa-server",
+	"description": "2-Factor authentication server for XBee",
+	"version": "0.0.5",
 	"private": true,
 	"dependencies": {
 		"express": "3.x",

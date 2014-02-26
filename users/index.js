@@ -2,10 +2,6 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
 module.exports = function (app, User) {
-	// // Initialize Passport! Also use passport.session() middleware, to support
-	// // persistent login sessions (recommended).
-	// app.use(passport.initialize());
-	// app.use(passport.session());
 
 	// Passport session setup.
 	//   To support persistent login sessions, Passport needs to be able to
