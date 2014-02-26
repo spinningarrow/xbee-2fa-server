@@ -48,3 +48,6 @@ var httpsServer = https.createServer(httpsOptions, app);
 httpsServer.listen(HTTPS_PORT, function () {
 	console.log('HTTPS server started. Listening on port ' + HTTPS_PORT + '...');
 });
+
+// Include modules
+require('./routes')(app);
