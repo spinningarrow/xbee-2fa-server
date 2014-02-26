@@ -1,5 +1,6 @@
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+var BasicStrategy = require('passport-http').BasicStrategy;
 
 module.exports = function (app, User) {
 
@@ -23,7 +24,7 @@ module.exports = function (app, User) {
 	//   credentials (in this case, a username and password), and invoke a callback
 	//   with a user object.  In the real world, this would query a database;
 	//   however, in this example we are using a baked-in set of users.
-	passport.use(new LocalStrategy(function(username, password, done) {
+	/*passport.use(new LocalStrategy(function(username, password, done) {
 		User.findOne({ username: username }, function(err, user) {
 			if (err) { return done(err); }
 			if (!user) { return done(null, false, { message: 'Unknown user ' + username }); }
@@ -32,6 +33,32 @@ module.exports = function (app, User) {
 				if(isMatch) {
 					return done(null, user);
 				} else {
+					return done(null, false, { message: 'Invalid password' });
+				}
+			});
+		});
+	}));*/
+
+	passport.use(new BasicStrategy(function (username, password, done) {
+		User.findOne({ username: username }, function (err, user) {
+			if (err) {
+				return done(err);
+			}
+
+			if (!user) {
+				return done(null, false);
+			}
+
+			user.comparePassword(password, function(err, isMatch) {
+				if (err) {
+					return done(err);
+				}
+
+				if(isMatch) {
+					return done(null, user);
+				}
+
+				else {
 					return done(null, false, { message: 'Invalid password' });
 				}
 			});

@@ -53,4 +53,8 @@ module.exports = function (app) {
 		req.logout();
 		res.redirect('/');
 	});
+
+	app.get('/api', passport.authenticate('basic', { session: false }), function (req, res) {
+		res.json(req.user.username);
+	});
 };
