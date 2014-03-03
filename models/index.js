@@ -38,11 +38,19 @@ userSchema.methods.comparePassword = function(candidatePassword, cb) {
 // Transmission model
 var transmissionSchema = mongoose.Schema({
 	nodeId: String,
-	data: String,
+	deviceId: String,
+	token: String,
 	time: Number
+});
+
+// Sensor node model
+var nodeSchema = mongoose.Schema({
+	nodeId: String,
+	authKey: String
 });
 
 module.exports = {
 	User: mongoose.model('User', userSchema),
-	Transmission: mongoose.model('Transmission', transmissionSchema)
+	Transmission: mongoose.model('Transmission', transmissionSchema),
+	Node: mongoose.model('Node', nodeSchema)
 };
