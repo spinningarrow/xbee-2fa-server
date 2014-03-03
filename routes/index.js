@@ -1,4 +1,4 @@
-module.exports = function (app) {
-	require('./main')(app);
+module.exports = function (app, Models) {
+	require('./main')(app, Models);
 	require('./users')(app);
 };

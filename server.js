@@ -1,5 +1,6 @@
 var fs = require('fs');
 var https = require('https');
+var http = require('http');
 var express = require('express');
 var passport = require('passport');
 var mongoose = require('mongoose');
@@ -42,15 +43,17 @@ app.use(app.router);
 var Models = require('./models');
 var User = Models.User;
 require('./users')(app, User);
-require('./routes')(app);
+require('./routes')(app, Models);
 
 // Set up HTTPS and start server
 var httpsOptions = {
 	key: fs.readFileSync('keys/private-key.pem'),
-	cert: fs.readFileSync('keys/public-cert.pem')
+	cert: fs.readFileSync('keys/public-cert2.pem')
 };
 
 var httpsServer = https.createServer(httpsOptions, app);
 httpsServer.listen(HTTPS_PORT, function () {
 	console.log('HTTPS server started. Listening on port ' + HTTPS_PORT + '...');
 });
+
+app.listen(3000);

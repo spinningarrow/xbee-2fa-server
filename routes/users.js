@@ -22,8 +22,12 @@ module.exports = function (app) {
 		res.render('account', { user: req.user });
 	});
 
-	app.get('/login', function(req, res){
-		res.render('login', { user: req.user, message: req.session.messages });
+	// app.get('/login', function(req, res){
+	// 	res.render('login', { user: req.user, message: req.session.messages });
+	// });
+
+	app.get('/login', passport.authenticate('basic', { session: false }), function (req, res) {
+		res.json(req.user.username);
 	});
 
 	// POST /login
@@ -55,6 +59,10 @@ module.exports = function (app) {
 	});
 
 	app.get('/api', passport.authenticate('basic', { session: false }), function (req, res) {
+		res.json(req.user.username);
+	});
+
+	app.post('/api', passport.authenticate('basic', { session: false }), function (req, res) {
 		res.json(req.user.username);
 	});
 };
