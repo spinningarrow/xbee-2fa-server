@@ -33,7 +33,7 @@ module.exports = function (app, Models) {
 
 	// Get the latest from the pending token requests for a particular
 	// node
-	app.get('/token-requests/:nodeId', function (req, res) {
+	app.get('/token-requests/:nodeId', passport.authenticate('basic', { session: false }), function (req, res) {
 		Transmission.find({ nodeId: req.params.nodeId }).sort({ time: -1 }).findOne(function (err, tx) {
 				if (err) {
 					console.log(err);
