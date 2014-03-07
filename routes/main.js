@@ -84,10 +84,11 @@ module.exports = function (app, Models) {
 
 			// Send token via email
 			var mailOptions = {
-				from: "xbee2fa@gmail.com", // sender address
+				from: "XBee 2FA <xbee2fa@gmail.com>", // sender address
 				to: email, // list of receivers
-				subject: "Your 2-factor authentication code", // Subject line
-				text: "2FA Token: " + token
+				subject: "2-factor authentication code: " + token, // Subject line
+				generateTextFromHTML: true,
+				html: "Node: " + nodeId + "<br>Device: " + deviceId + "<br>2FA Token: " + token
 			};
 
 			smtpTransport.sendMail(mailOptions, function(error, response){
