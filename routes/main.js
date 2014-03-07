@@ -1,4 +1,4 @@
-var smtpTransport = require('../mail');
+var mailer = require('../mail');
 var passport = require('passport');
 
 module.exports = function (app, Models) {
@@ -53,6 +53,11 @@ module.exports = function (app, Models) {
 
 		var token = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
 
+		if (!nodeId || !deviceId) {
+			res.json(400, 'Please provide both node and device IDs');
+			return;
+		}
+
 		// Get the user's email address
 		User.findOne({ username: username }, function (err, user) {
 			if (err) {
@@ -83,25 +88,21 @@ module.exports = function (app, Models) {
 			});
 
 			// Send token via email
-			var mailOptions = {
-				from: "XBee 2FA <xbee2fa@gmail.com>", // sender address
-				to: email, // list of receivers
-				subject: "2-factor authentication code: " + token, // Subject line
-				generateTextFromHTML: true,
-				html: "Node: " + nodeId + "<br>Device: " + deviceId + "<br>2FA Token: " + token
-			};
+			mailer.options.to = email;
+			mailer.options.subject = "2-factor authentication code: " + token;
+			mailer.options.html = "Node: " + nodeId + "<br>Device: " + deviceId + "<br>2FA Token: " + token;
 
-			smtpTransport.sendMail(mailOptions, function(error, response){
+			mailer.smtpTransport.sendMail(mailer.options, function(error, response){
 				if (error) {
 					console.log(error);
-					res.json(error);
+					res.json(500, error);
 				} else {
 					console.log("Message sent: " + response.message);
 					res.json(response.message);
 				}
 
 				// if you don't want to use this transport object anymore, uncomment following line
-				smtpTransport.close(); // shut down the connection pool, no more messages
+				mailer.smtpTransport.close(); // shut down the connection pool, no more messages
 			});
 		});
 	});
