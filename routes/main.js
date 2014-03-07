@@ -2,34 +2,17 @@ var smtpTransport = require('../mail');
 var passport = require('passport');
 
 module.exports = function (app, Models) {
-	// app.get('/', function (req, res){
-	// 	res.send('Access denied.');
-	// });
+	// Get specific models
+	var User = Models.User;
 	var Node = Models.Node;
 	var Transmission = Models.Transmission;
 
-	app.get('/sendmail', function (req, res) {
-		var mailOptions = {
-			from: "xbee2fa@gmail.com", // sender address
-			to: "sahil29@gmail.com", // list of receivers
-			subject: "Your 2-factor authentication code", // Subject line
-			text: "3249057"
-		};
-
-		smtpTransport.sendMail(mailOptions, function(error, response){
-			if (error) {
-				console.log(error);
-				res.json(error);
-			} else {
-				console.log("Message sent: " + response.message);
-				res.json(response.message);
-			}
-
-			// if you don't want to use this transport object anymore, uncomment following line
-			smtpTransport.close(); // shut down the connection pool, no more messages
-		});
+	// Home
+	app.get('/', function(req, res){
+		res.json('Nothing to do here');
 	});
 
+	// Retrieve the encryption key for a specific node
 	app.get('/keys/:nodeId', passport.authenticate('basic', { session: false }), function (req, res) {
 		var nodeId = req.params.nodeId;
 
@@ -48,6 +31,8 @@ module.exports = function (app, Models) {
 		});
 	});
 
+	// Get the latest from the pending token requests for a particular
+	// node
 	app.get('/token-requests/:nodeId', function (req, res) {
 		Transmission.find({ nodeId: req.params.nodeId }).sort({ time: -1 }).findOne(function (err, tx) {
 				if (err) {
@@ -60,52 +45,63 @@ module.exports = function (app, Models) {
 
 	});
 
+	// Create a new token request for a particular node
 	app.post('/token-requests', passport.authenticate('basic', { session: false }), function (req, res) {
 		var nodeId = req.body.nodeId;
 		var deviceId = req.body.deviceId;
+		var username = req.user.username;
 
-		var token = Math.floor(Math.random() * 9999);
+		var token = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
 
-		// Add to transmission queue
-		var tx = new Transmission({
-			nodeId: nodeId,
-			deviceId: deviceId,
-			token: token,
-			time: new Date().getTime()
-		});
-
-		tx.save(function (error, tx) {
-			if (error) {
-				console.log(error);
+		// Get the user's email address
+		User.findOne({ username: username }, function (err, user) {
+			if (err) {
+				res.json(err);
 			}
 
-			console.log(tx);
-		});
-
-		// Send token via email
-		var mailOptions = {
-			from: "xbee2fa@gmail.com", // sender address
-			to: "sahil29@gmail.com", // list of receivers
-			subject: "Your 2-factor authentication code", // Subject line
-			text: "2FA Token: " + token
-		};
-
-		smtpTransport.sendMail(mailOptions, function(error, response){
-			if (error) {
-				console.log(error);
-				res.json(error);
-			} else {
-				console.log("Message sent: " + response.message);
-				res.json(response.message);
+			if (!user) {
+				res.json('No user found.');
 			}
 
-			// if you don't want to use this transport object anymore, uncomment following line
-			smtpTransport.close(); // shut down the connection pool, no more messages
-		});
+			// All good, get the email address
+			var email = user.email;
 
-		res.json({
-			n: nodeId,
-			d: deviceId
+			// Add to transmission queue so it can be sent to the XBee
+			var tx = new Transmission({
+				nodeId: nodeId,
+				deviceId: deviceId,
+				token: token,
+				time: new Date().getTime()
+			});
+
+			tx.save(function (error, tx) {
+				if (error) {
+					console.log(error);
+				}
+
+				console.log(tx);
+			});
+
+			// Send token via email
+			var mailOptions = {
+				from: "xbee2fa@gmail.com", // sender address
+				to: email, // list of receivers
+				subject: "Your 2-factor authentication code", // Subject line
+				text: "2FA Token: " + token
+			};
+
+			smtpTransport.sendMail(mailOptions, function(error, response){
+				if (error) {
+					console.log(error);
+					res.json(error);
+				} else {
+					console.log("Message sent: " + response.message);
+					res.json(response.message);
+				}
+
+				// if you don't want to use this transport object anymore, uncomment following line
+				smtpTransport.close(); // shut down the connection pool, no more messages
+			});
 		});
 	});
 };

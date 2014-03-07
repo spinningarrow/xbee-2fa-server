@@ -1,6 +1,5 @@
 var fs = require('fs');
 var https = require('https');
-var http = require('http');
 var express = require('express');
 var passport = require('passport');
 var mongoose = require('mongoose');
@@ -56,4 +55,5 @@ httpsServer.listen(HTTPS_PORT, function () {
 	console.log('HTTPS server started. Listening on port ' + HTTPS_PORT + '...');
 });
 
+// Also create an HTTP server TODO remove
 app.listen(3000);
