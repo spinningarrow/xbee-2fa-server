@@ -12,9 +12,6 @@ mongoose.connect(MONGO_URI);
 var db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function callback() {
-	console.log('Connected to database.');
-});
 
 // Configure Express
 var app = express();
@@ -52,8 +49,24 @@ var httpsOptions = {
 
 var httpsServer = https.createServer(httpsOptions, app);
 httpsServer.listen(HTTPS_PORT, function () {
-	console.log('HTTPS server started. Listening on port ' + HTTPS_PORT + '...');
-});
 
-// Also create an HTTP server TODO remove
-app.listen(3000);
+	// Check if nodemailer settings have been loaded; quit if they
+	// haven't
+	if (!process.env.MAILER_ADDRESS) {
+		console.log('Mailing settings not found; please load and restart the server.');
+
+		httpsServer.close();
+		process.exit();
+		return;
+	}
+
+	// All good, connect to the DB
+	db.once('open', function callback() {
+		console.log('Connected to database.');
+	});
+
+	console.log('HTTPS server started. Listening on port ' + HTTPS_PORT + '...');
+
+	// Also create an HTTP server TODO remove
+	app.listen(3000);
+});
