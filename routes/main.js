@@ -1,5 +1,6 @@
 var mailer = require('../mail');
 var passport = require('passport');
+var Q = require('q');
 
 module.exports = function (app, Models) {
 	// Get specific models
@@ -31,6 +32,25 @@ module.exports = function (app, Models) {
 		});
 	});
 
+	// Get the latest pending token requests for all nodes
+	app.get('/token-requests', passport.authenticate('basic', { session: false }), function (req, res) {
+
+		// Use a list of promises
+		var promises = [];
+
+		Transmission.aggregate({ $group: { _id: '$nodeId', time: { $max: '$time' } } }, function (err, result) {
+			result.forEach(function (row) {
+				promises.push(Transmission.findOne({ nodeId: row._id, time: row.time }).exec());
+			});
+
+			// Respond with the results once all queries have executed
+			Q.all(promises).then(function (results) {
+				console.log(results);
+				res.json(results);
+			});
+		});
+	});
+
 	// Get the latest from the pending token requests for a particular
 	// node
 	app.get('/token-requests/:nodeId', passport.authenticate('basic', { session: false }), function (req, res) {
@@ -51,6 +71,7 @@ module.exports = function (app, Models) {
 		var deviceId = req.body.deviceId;
 		var username = req.user.username;
 
+		// Create a 6-digit token
 		var token = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
 
 		if (!nodeId || !deviceId) {
