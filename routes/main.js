@@ -38,7 +38,7 @@ module.exports = function (app, Models) {
 		// Use a list of promises
 		var promises = [];
 
-		Transmission.aggregate({ $group: { _id: '$nodeId', time: { $max: '$time' } } }, function (err, result) {
+		Transmission.aggregate({ $group: { _id: '$nodeId', time: { $max: '$time' } } }).sort({ time: -1 }).exec(function (err, result) {
 			result.forEach(function (row) {
 				promises.push(Transmission.findOne({ nodeId: row._id, time: row.time }).exec());
 			});
