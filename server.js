@@ -4,7 +4,7 @@ var express = require('express');
 var passport = require('passport');
 var mongoose = require('mongoose');
 
-var HTTPS_PORT = 8000;
+var HTTPS_PORT = 8080;
 var MONGO_URI = 'mongodb://localhost/xbee-2fa';
 
 // Configure and connect to the database
