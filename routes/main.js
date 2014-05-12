@@ -1,6 +1,7 @@
 var mailer = require('../mail');
 var passport = require('passport');
 var Q = require('q');
+var fs = require('fs');
 
 module.exports = function (app, Models) {
 	// Get specific models
@@ -125,6 +126,80 @@ module.exports = function (app, Models) {
 				// if you don't want to use this transport object anymore, uncomment following line
 				mailer.smtpTransport.close(); // shut down the connection pool, no more messages
 			});
+		});
+	});
+
+	// List all available files
+	app.get('/files', function (req, res) {
+		fs.readdir('files', function (error, fileNames) {
+			if (error) {
+				console.log(error);
+				res.json(500, error);
+			}
+
+			var results = fileNames.map(function (fileName) {
+				var fileDetails = {};
+				fileDetails.name = fileName;
+
+				var resultDeferred = Q.defer();
+				var sizeDeferred = Q.defer();
+				var contentsDeferred = Q.defer();
+
+				// Get file size
+				fs.stat('files/' + fileName, function(error, stats) {
+					if (error) {
+						sizeDeferred.reject(error);
+					}
+
+					else {
+						sizeDeferred.resolve(stats.size);
+					}
+				});
+
+				sizeDeferred.promise.then(function (size) {
+					fileDetails.size = size;
+				});
+
+				// Get file contents
+				fs.readFile('files/' + fileName, 'utf8',  function (error, data) {
+					if (error) {
+						contentsDeferred.reject(error);
+					}
+
+					else {
+						contentsDeferred.resolve(data);
+					}
+				});
+
+				contentsDeferred.promise.then(function (data) {
+					fileDetails.data = data;
+				});
+
+				// Resolve promises
+				Q.allSettled([sizeDeferred.promise, contentsDeferred.promise]).then(function () {
+					resultDeferred.resolve(fileDetails);
+				})
+
+				return resultDeferred.promise;
+			});
+
+			Q.all(results).then(function (results) {
+				console.log(results);
+				res.json(results);
+			});
+		});
+	});
+
+	// Get a particular file's data
+	app.get('/files/:fileName', function (req, res) {
+		fs.readFile('files/' + req.params.fileName, 'utf8', function (error, data) {
+			if (error) {
+				res.json(500, error);
+			}
+
+			else {
+				res.json(data);
+			}
 		});
 	});
 };
